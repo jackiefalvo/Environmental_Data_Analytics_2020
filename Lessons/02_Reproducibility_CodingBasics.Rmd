@@ -127,6 +127,8 @@ longnameforillustration
 ```{r}
 long_name_for_illustration <- 11
 
+long_name_for_illustration
+
 ```
 
 ### Comments
@@ -145,7 +147,7 @@ seq(1, 10)
 ten_sequence <- seq(1, 10)
 ten_sequence
 
-seq(1, 10, 2) # from, to, by
+seq(1, 10, 2) # from, to, (counting)by
 ```
 
 The basic form of a function is `functionname()`, and the packages we will use in this class will use these basic forms. However, there may be situations when you will want to create your own function. Below is a description of how to write functions through the metaphor of creating a recipe (credit: @IsabellaGhement on Twitter). 
@@ -160,15 +162,16 @@ functionname <- function(){
 A single ingredient recipe: 
 ```{r}
 # Write the recipe
+
+
 recipe1 <- function(x){
   mix <- x*2
-  return(mix)
-}
+  return(mix)}
 
-# Bake the recipe
+# Bake the recipe -- shows up in our environment (stored)
 simplemeal <- recipe1(5)
 
-# Serve the recipe
+# Serve the recipe -- outputted into console 
 simplemeal
 ```
 
