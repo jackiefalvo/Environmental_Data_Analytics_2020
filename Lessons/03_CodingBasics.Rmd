@@ -36,24 +36,27 @@ vector2
 vector3 <- c(TRUE,TRUE,TRUE,FALSE,TRUE,FALSE) #logical vector
 vector3
 
-vector1[3] # 
+vector1[3] # ran vector 1 and outputted the third item in the vector
 
 # Matrices ----
-matrix1 <- matrix(1:20, nrow = 5,ncol = 4) # 
+matrix1 <- matrix(1:20, nrow = 5,ncol = 4) # default counts down, by column ('byrow = FALSE' will also do this)
 matrix1
-matrix2 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE) #
+matrix2 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE) # 'byrow = TRUE' counts across, by row
 matrix2
 matrix3 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE, # return after comma continues the line
                   dimnames = list(c("uno", "dos", "tres", "cuatro", "cinco"), 
                                   c("un", "deux", "trois", "cat"))) #
-
-matrix1[4, ] #
-matrix1[ , 3] #
-matrix1[c(12, 14)] #
-matrix1[c(12:14)] #
-matrix1[2:4, 1:3] #
+matrix3 # dinames named the rows and columns (first list labeled the rows, second list labeled the columms)
+matrix1
+matrix1[4, ] # returned the 4th row of matrix 1
+matrix1[ , 3] # returned the 3rd column of matrix 1
+matrix1
+matrix1[c(12, 14)] # returns the 12th and 14th position in matrix 1 (the c goes to position)
+matrix1[c(12:14)] # returns the 12th-14th position in matrix 1 (the c goes to position)
+matrix1[2:4, 1:3] # returns 2nd through 4th rows but only the 1st through 3rd columns within those rows
 
 cells <- c(1, 26, 24, 68)
+cells
 rnames <- c("R1", "R2")
 cnames <- c("C1", "C2") 
 matrix4 <- matrix(cells, nrow = 2, ncol = 2, byrow = TRUE,
@@ -65,48 +68,63 @@ list1 <- list(name = "Maria", mynumbers = vector1, mymatrix = matrix1, age = 5.3
 list1[[2]]
 
 # Data Frames ----
-d <- c(1, 2, 3, 4) # What type of vector?
-e <- c("red", "white", "red", NA) # What type of vector?
-f <- c(TRUE, TRUE, TRUE, FALSE) # What type of vector?
+d <- c(1, 2, 3, 4) # What type of vector? -> numeric
+e <- c("red", "white", "red", NA) # What type of vector? -> factor
+f <- c(TRUE, TRUE, TRUE, FALSE) # What type of vector? -> logical
 dataframe1 <- data.frame(d,e,f) #
-names(dataframe1) <- c("ID","Color","Passed"); View(dataframe1) # 
+names(dataframe1) <- c("ID","Color","Passed"); View(dataframe1) # we named the rows and columns of the data frame
 
-dataframe1[1:2,] # 
+dataframe1[1:2,] # row, column
 dataframe1[c("ID","Passed")] # 
 dataframe1$ID
-
+dataframe1['ID']
+dataframe1[c('ID','Color')]
 ```
 Question: How do the different types of data appear in the Environment tab?
 
-> Answer: 
+> Answer: the environment tab lists values, lists and dataframes separately
 
 Question: In the R chunk below, write "dataframe1$". Press `tab` after you type the dollar sign. What happens?
 
-> Answer: 
+> Answer: the dollar sign gives a list of options (column values) within the data frame, pushing tab selects the first option
 
 ### Coding challenge
 
 Find a ten-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. Create two vectors, one representing the high temperature on each of the ten days and one representing the low.
 
 ```{r}
+day <- c(1:10)
+day
+highs <- c(62,45,49,50,40,40,45,52,54,58)
+lows <- c(40, 29, 42, 24, 23, 23, 26, 30, 42, 41)
+
 
 ```
 
 Now, create two additional vectors that include the ten-day forecast for the high and low temperatures in Celsius.
 
 ```{r}
-
+highC <- (highs - 32) * (5/9)
+highC
+lowC <- (lows - 32) * (5/9)
+lowC
 ```
 
 Combine your four vectors into a data frame and add informative column names.
 
 ```{r}
+WeatherForecast <- data.frame(day, highs, lows, highC, lowC)
+WeatherForecast
+names(WeatherForecast) <- c("Days","Highs (F)","Lows (F)", "High (C)", "Low (C)"); View(WeatherForecast)
 
 ```
 
 Use the common functions `summary` and `sd` to obtain basic data summaries of the ten-day forecast. How would you call these functions differently for the entire data frame vs. a single column? Attempt to demonstrate both options below.
 
 ```{r}
+summary(WeatherForecast["Highs (F)"])
+summary(WeatherForecast[1])
+# sd(WeatherForecast) not working
 
 ```
 
@@ -138,7 +156,7 @@ library(dplyr)
 library(ggplot2)
 
 # Some packages are umbrellas under which other packages are loaded
-#install.packages("tidyverse")
+install.packages("tidyverse")
 library(tidyverse)
 ```
 
