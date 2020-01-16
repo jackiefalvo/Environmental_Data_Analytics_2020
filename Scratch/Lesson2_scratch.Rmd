@@ -1,0 +1,78 @@
+```{r}
+
+recipe1 <- function(x){
+  mix <- x*2
+  return(mix)
+  
+}
+
+dinner <- recipe1(10)
+dinner
+
+recipe2 <- function(x){
+  mix1 <- x*2
+  mix2 <- x/2
+  return(list(mix1 = mix1,
+              mix2 = mix2))
+}
+
+bigdinner <- recipe2(8)
+bigdinner
+
+```
+# recipe1 is a function: the function(x) assigns the equation x*2 to the variable mix
+# mix is the answer to the equation x*2
+```{r}
+recipe3 <- function(x, f){
+  mix1 <- x*f
+  mix2 <- x/f
+  return(list(mix1 = mix1, 
+              mix2 = mix2))
+}
+
+ItalianDinner <- recipe3(x = 4, f = 2)
+ItalianDinner
+
+ItalianDinner$mix1
+
+```
+
+```{r}
+recipe4 <- function(x){
+  if(x<3){
+    x*2}
+  else{
+    x/2}
+  }
+  
+  
+
+
+brownies <- recipe4(2)
+brownies
+```
+
+recipe5 <- function(x){
+  if(x<3){
+    x*2}
+  else if (x>3){
+    x/2
+  }
+  else{
+    x
+  }
+}
+
+meal <- recipe4(4); meal
+meal2 <- recipe4(2); meal2
+meal3 <- recipe4(3); meal3
+meal4 <- recipe5(3); meal4
+meal5 <- recipe5(4); meal5
+
+recipe6 <- function(x){
+  ifelse(x<3, x*2, x/2)}
+
+meala <- recipe6(4); meala
+mealb <- recipe6(5); mealb
+}
+
