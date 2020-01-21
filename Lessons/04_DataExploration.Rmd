@@ -186,7 +186,7 @@ Note that for every date prior to 1969, R has assigned the date in the 2000s rat
 
 ```{r}
 # 
-USGS.flow.data$datetime <- format(USGS.flow.data$datetime, "%y%m%d")
+USGS.flow.data$datetime <- format(USGS.flow.data$datetime, "%y%m%d") #reformatted date , careful of legacy data (prior to 1970)
 
 #
 create.early.dates <- (function(d) {
