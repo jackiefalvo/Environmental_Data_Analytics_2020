@@ -120,7 +120,7 @@ summary(USGS.flow.data)
 ```
 
 What happened to blank cells in the spreadsheet when they were imported into R?
-> Answer: 
+> Answer: they were left blank
 
 ## Adjusting Datasets
 
@@ -135,6 +135,8 @@ summary(USGS.flow.data$gage.height.mean)
 Question: What types of research questions might make it favorable to remove NAs from a dataset, and what types of research questions might make it favorable to retain NAs in the dataset?
 
 > Answer: if you have presence/absence data for an animal and only want to run an analysis on rows that have the presence of data
+# also it seems like the R function 'mean' doesn't take the mean of the numbers in a field when NA's are present, 
+# it was only after I removed NA's from the discharge.mean field that R was able to calculate a numeric mean
 
 ```{r}
 USGS.flow.data.complete <- na.omit(USGS.flow.data)
@@ -145,6 +147,9 @@ mean(USGS.flow.data.complete$discharge.mean)
 sd(USGS.flow.data.complete$discharge.mean)
 summary(USGS.flow.data.complete$discharge.mean)
 
+#compare to old data
+mean(USGS.flow.data$discharge.mean)
+mean(USGS.flow.data.complete$discharge.mean)
 ```
 
 ### Formatting dates
@@ -180,12 +185,13 @@ format(today, format = "%Y")
 
 USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%m/%d/%y") # telling R what date format our USGS data is in
 
+USGS.flow.data$datetime # now R spits out that column in the yyyymmdd format, however the legacy data are a problem (post 1970 it spits out 2069 instead of 1969, etc.)
 ```
 
 Note that for every date prior to 1969, R has assigned the date in the 2000s rather than the 1900s. This can be fixed with an `ifelse` statement inside a function. Run through the code below and write what is happening in the comment above each line.
 
 ```{r}
-# 
+# what is the difference between above ...as.Date() and just below this ...format() ?
 USGS.flow.data$datetime <- format(USGS.flow.data$datetime, "%y%m%d") #reformatted date , careful of legacy data (prior to 1970)
 
 #
@@ -197,7 +203,9 @@ USGS.flow.data$datetime <- create.early.dates(USGS.flow.data$datetime)
 
 #
 USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y%m%d") 
+USGS.flow.data$datetime
 
+## ** come back and understand the fucntion that dictated earlier dates
 ```
 
 ## Saving datasets
@@ -206,10 +214,14 @@ We just edited our raw dataset into a processed form. We may want to return to t
 
 
 ```{r}
+# first I created the subfolder, 'processed' , then ran the next line successfully (wrote file and saved it to this folder)
 write.csv(USGS.flow.data, file = "./Data/Processed/USGS_Site02085000_Flow_Processed.csv", row.names=FALSE)
 
 ```
 
+# my homework:
+  # play with datetime function
+  # practice with my own csv
 
 ## Tips and Tricks
 
