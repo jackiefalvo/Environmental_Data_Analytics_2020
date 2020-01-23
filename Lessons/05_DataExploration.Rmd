@@ -135,14 +135,15 @@ An alternate option is a violin plot, which displays density distributions, some
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean.approval, y = gage.height.mean))
 
-#
+# dif distributions across a range of data (certain sections of datasets have dif dist than others)
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean, y = discharge.mean, group = cut_width(gage.height.mean, 1)))
 
-#
+# can show info about sample counts a bit better (wider circle area = more data available)
 ggplot(USGS.flow.data) +
   geom_violin(aes(x = gage.height.mean.approval, y = gage.height.mean), 
-              draw_quantiles = c(0.25, 0.5, 0.75))
+              draw_quantiles = c(0.25, 0.5, 0.75)), # don't know why my comma didn't work..
+              scale = "count")
 ```
 
 ### Scatterplot (function: geom_point)
@@ -153,7 +154,7 @@ ggplot(USGS.flow.data) +
   geom_point(aes(x = discharge.mean, y = gage.height.mean))
 
 ggplot(USGS.flow.data) +
-  geom_point(aes(x = datetime, y = discharge.mean))
+  geom_point(aes(x = datetime, y = discharge.mean)) # nice visualization of timescale of dataset
 ```
 
 Question: under what circumstances would it be beneficial to use each of these graph types (bar plot, histogram, frequency polygon, box-and whisker, violin, scatterplot)?
