@@ -29,7 +29,7 @@ getwd()
 library(tidyverse)
 
 # 3. Import datasets
-USGS.flow.data <- read.csv("./Data/Processed/USGS_Site02085000_Flow_Processed.csv")
+USGS.flow.data <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/USGS_Site02085000_Flow_Processed_Sena.csv")
 
 #View(USGS.flow.data)
 # Alternate option: click on data frame in Environment tab
@@ -57,8 +57,8 @@ Note: each of these approaches utilize the package "ggplot2". We will be coverin
 
 Visualize count data for categorical variables. 
 
-```{r, fig.height = 3, fig.width = 4}
-ggplot(USGS.flow.data, aes(x = discharge.mean.approval)) +
+```{r, fig.height = 3, fig.width = 4} 
+ggplot(USGS.flow.data, aes(x = discharge.mean.approval)) + # aes = aesthetics, seems to dictate the axes
   geom_bar()
 ```
 
@@ -71,7 +71,7 @@ Visualize distributions of values for continuous numerical variables. What is ha
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean))
 
-#
+# make bins (or bars) that are only 10 units wide
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean), binwidth = 10)
 
@@ -82,11 +82,16 @@ ggplot(USGS.flow.data) +
 #
 ggplot(USGS.flow.data, aes(x = discharge.mean)) +
   geom_histogram(binwidth = 10) + 
-  scale_x_continuous(limits = c(0, 500))
+  scale_x_continuous(limits = c(0, 500)) # only shows 0 - 500 on x axis
   
 #
-ggplot(USGS.flow.data) +
+gageplot <- ggplot(USGS.flow.data) +
   geom_histogram(aes(x = gage.height.mean))
+
+
+# just running code will have the graph show up in lower right (under plots)
+# if we name the plot something, it won't automatically display but it will be saved in environments
+  # to save env and visualize you can save and then print
 
 ```
 ### Frequency line graph (function: geom_freqpoly)
@@ -94,16 +99,19 @@ ggplot(USGS.flow.data) +
 An alternate to a histogram is a frequency polygon graph (distributions of values for continuous numerical variables). Instead of displaying bars,  counts of continuous variables are displayed as lines. This is advantageous if you want to display multiple variables or categories of variables at once.
 
 ```{r, fig.height = 3, fig.width = 4}
-#
+# line graph (multiple lines)
 ggplot(USGS.flow.data) +
   geom_freqpoly(aes(x = gage.height.mean), bins = 50) +
-  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "darkgray") +
-  geom_freqpoly(aes(x = gage.height.max), bins = 50,  lty = 2) +
-  scale_x_continuous(limits = c(0, 10))
+  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "maroon") + # chances color of line
+  geom_freqpoly(aes(x = gage.height.max), bins = 50,  lty = 2, color = 'darkgrey') + # (line types) lty 2 = dashed line, 3 = dotted, etc.
+  scale_x_continuous(limits = c(0, 10)) # adjusts scale of x axis
 
+summary(USGS.flow.data$gage.height.max)
+summary(USGS.flow.data$gage.height.min)
+summary(USGS.flow.data$gage.height.mean)
 #
 ggplot(USGS.flow.data) +
-  geom_freqpoly(aes(x = gage.height.mean, color = gage.height.mean.approval), bins = 50) +
+  geom_freqpoly(aes(x = gage.height.mean, color = gage.height.mean.approval), bins = 50) + # separate color based on approval code
   scale_x_continuous(limits = c(0, 10)) +
   theme(legend.position = "top")
 
