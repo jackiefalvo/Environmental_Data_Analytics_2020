@@ -29,7 +29,7 @@ class(RFB_iso$AFG) # gives class (data type?) of first column
 ISO_list <- colnames(RFB_iso)
 ISO_list
 
-##* I'd like to be able to 
+## I'd like to be able to 
   # write functions
   # read in the RFB data and restructure it into two columns
     # for each column:
