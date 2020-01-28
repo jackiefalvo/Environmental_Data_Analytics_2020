@@ -23,6 +23,11 @@ The completed exercise is due on Tuesday, January 28 at 1:00 pm.
 
 1. Check your working directory, load necessary packages (tidyverse), and upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. 
 ```{r,  message = FALSE}
+getwd()
+library(tidyverse)
+
+Neonics <- read.csv("~/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv")
+Litter <- read.csv("../Data/Raw/NEON_NIWO_Litter_massdata_2018-08_raw.csv")
 
 ```
 
@@ -30,18 +35,18 @@ The completed exercise is due on Tuesday, January 28 at 1:00 pm.
 
 2. The neonicotinoid dataset was collected from the Environmental Protection Agency's ECOTOX Knowledgebase, a database for ecotoxicology research. Neonicotinoids are a class of insecticides used widely in agriculture. The dataset that has been pulled includes all studies published on insects. Why might we be interested in the ecotoxicologoy of neonicotinoids on insects? Feel free to do a brief internet search if you feel you need more background information. 
 
-> Answer: 
+> Answer: It's important to understand the effects that insecticides (especially ones that are widely used) have on insects so we can determine the proper levels that should be allowed to be released into the environment. 
 
 3. The Niwot Ridge litter and woody debris dataset was collected from the National Ecological Observatory Network, which collectively includes 81 aquatic and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel free to do a brief internet search if you feel you need more background information. 
 
-> Answer: 
+> Answer: Understanding the composition of the material that falls on the forest floor can help us understand the chemicals that will later be mixed into the earth and cycled through the atmosphere. 
 
 4. How is litter and woody debris sampled as part of the NEON network? Read the NEON_Litterfall_UserGuide.pdf document to learn more. List three pieces of salient information about the sampling methods here: 
 
 > Answer: 
-*
-*
-*
+* ground traps are sampled once per year
+* deciduous trees are sampled more often than evergreen trees
+* locations of tower plots are selected randomly
 
 
 
@@ -50,31 +55,32 @@ The completed exercise is due on Tuesday, January 28 at 1:00 pm.
 5. What are the dimensions of the dataset?
 
 ```{r}
+dim(Neonics)
 
 ```
 
 6. Using the `summary` function, determine the most common effects that are studied. Why might these effects specifically be of interest?
 ```{r}
-
+summary(Neonics)
 ```
 
-> Answer: 
+> Answer: Chloro-3-pyridinyl)methyl]-N-nitro-2-imidazolidinimine , perhaps this is the most common chemical 
 
 7. Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
 ```{r}
-
+summary(Neonics)
 ```
 
-> Answer: 
+> Answer: Honey Bee, Parasitic Wasp, Buff Tailed Bumblebee, Carniolan Honey Bee, Bumble Bee, Italian Honeybee; these are probably important species for agriculture
 
 8. Concentrations are always a numeric value. What is the class of Conc.1..Author. in the dataset, and why is it not numeric?
 
 ```{r}
-
+class(Neonics$Conc.1..Author.)
 ```
 
-> Answer:
+> Answer: the class is factor because it has a list of possible values
 
 
 
@@ -82,12 +88,17 @@ The completed exercise is due on Tuesday, January 28 at 1:00 pm.
 
 9. Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year. 
 ```{r}
+view(Neonics)
 
+ggplot(Neonics) +
+  geom_freqpoly(aes(x = Publication.Year), bins = 10)
 ```
 
 10. Reproduce the same graph but now add a color aesthetic so that different Test.Location are displayed as different colors.
 ```{r}
-
+ggplot(Neonics) +
+  geom_freqpoly(aes(x = Publication.Year), bins = 10, color = 'maroon') +
+  geom_freqpoly(aes(x = Test.Location), bins = 10, color = 'blue')
 ```
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
