@@ -192,6 +192,17 @@ Sometimes we will want to perform multiple functions on a single dataset on our 
 Let's say we want to take our raw dataset (NTL.phys.data), *then* filter the data for Peter and Paul lakes, *then* select temperature and observation information, and *then* add a column for temperature in Fahrenheit: 
 
 ```{r}
+# pipe operator = %>% pipe means 'then'
+  # first take this dataset, then
+  # filter for paul lake and peter lake, then
+  # select columns, then
+  # change date to celcius
+# this one 'line' spits out everything
+
+## * pipes and 'ifelse' statements can both work in most circumstances
+# use is based on personal preference mostly
+# although there can be certain situations where one is more appropriate than the other
+
 NTL.phys.data.processed <- 
   NTL.phys.data %>%
   filter(lakename == "Paul Lake" | lakename == "Peter Lake") %>%
@@ -206,6 +217,9 @@ Notice that we did not place the dataset name inside the wrangling function but 
 
 ```{r}
 write.csv(NTL.phys.data.PeterPaul1, row.names = FALSE, file = "./Data/Processed/NTL-LTER_Lake_ChemistryPhysics_PeterPaul_Processed.csv")
+# this writes and saves the changes we made to a new file
+  # * hmm I think for my IHH I'm going to need to 'write' the data a different way to rearrange
+# rownames = false means don't rename rows with numbers (default, not a big deal)
 ```
 
 ## Closing Discussion
