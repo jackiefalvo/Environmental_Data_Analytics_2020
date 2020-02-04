@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4: Data Wrangling"
-author: "Student Name"
+author: Cristiana Falvo
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -24,9 +24,54 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 2. Explore the dimensions, column names, and structure of the datasets. 
 
 ```{r, message = FALSE}
-#1
+#1 
+getwd()
+library(tidyverse)
+library(lubridate)
+# data
+EPA_Ozone_2018 <- read.csv("../Data/Raw/EPAair_O3_NC2018_raw.csv")
+EPA_Ozone_2019 <- read.csv("../Data/Raw/EPAair_O3_NC2019_raw.csv")
+EPA_PM25_2018 <- read.csv("../Data/Raw/EPAair_PM25_NC2018_raw.csv")
+EPA_PM25_2019 <- read.csv("../Data/Raw/EPAair_PM25_NC2019_raw.csv")
 
 #2
+## explore ozone data
+head(EPA_Ozone_2018)
+head(EPA_Ozone_2019)
+dim(EPA_Ozone_2018)
+dim(EPA_Ozone_2019)
+str(EPA_Ozone_2018)
+str(EPA_Ozone_2019)
+
+# are column names the same? 
+ozone_18_names <- colnames(EPA_Ozone_2018)
+ozone_19_names <- colnames(EPA_Ozone_2019)
+class(ozone_18_names)
+
+intersect(ozone_18_names, ozone_19_names)
+setdiff(ozone_18_names, ozone_19_names)
+setdiff(ozone_19_names, ozone_18_names)
+# ..yes, column names are identical
+
+## explore particulate matter (PM) data
+head(EPA_PM25_2018)
+head(EPA_PM25_2019)
+dim(EPA_PM25_2018)
+dim(EPA_PM25_2019)
+str(EPA_PM25_2018)
+str(EPA_PM25_2019)
+
+# compare PM column names
+PM_18_names <- colnames(EPA_PM25_2018)
+PM_19_names <- colnames(EPA_PM25_2019)
+intersect(PM_18_names, PM_19_names)
+# pm names also match from 2018 to 2019
+
+# how about PM vs ozone?
+intersect(ozone_18_names, PM_18_names)
+setdiff(ozone_18_names, PM_18_names)
+setdiff(PM_18_names, ozone_18_names)
+# one field is different between ozone and PM data, the rest are the same
 ```
 
 ## Wrangle individual datasets to create processed files.
@@ -36,13 +81,53 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
 
 ```{r}
-#3
+#3 
+# change date for ozone 2018 data
+EPA_Ozone_2018$Date <- as.Date(EPA_Ozone_2018$Date, format = "%m/%d/%Y")
+class(EPA_Ozone_2018$Date)
+# change date for ozone 2019 data
+EPA_Ozone_2019$Date <- as.Date(EPA_Ozone_2019$Date, format = "%m/%d/%Y")
+class(EPA_Ozone_2019$Date)
+# change date for PM 2018 data
+EPA_PM25_2018$Date <- as.Date(EPA_PM25_2018$Date, format = "%m/%d/%Y")
+class(EPA_PM25_2018$Date)
+# change date for PM 2019 data
+EPA_PM25_2019$Date <- as.Date(EPA_PM25_2019$Date, format = "%m/%d/%Y")
+class(EPA_PM25_2019$Date)
 
 #4
+# select columns for ozone 2018
+ozone_2018_subset <- select(EPA_Ozone_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+# select columns for ozone 2019
+ozone_2019_subset <- select(EPA_Ozone_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+# select columns for PM 2018
+PM_2018_subset <- select(EPA_PM25_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+# select columns for PM 2019
+PM_2019_subset <- select(EPA_PM25_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
 #5
+# change desc field of PM 2018 subset data
+PM_2018_subset_adjusted <-
+  PM_2018_subset %>%
+  mutate(AQS_PARAMETER_DESC = "PM2.5")
+# change desc field of PM 2019 subset data
+PM_2019_subset_adjusted <-
+  PM_2019_subset %>%
+  mutate(AQS_PARAMETER_DESC = "PM2.5")
 
 #6
+# save ozone 2018 processed data
+write.csv(ozone_2018_subset, row.names = FALSE,
+          file = "../Data/Processed/EPAair_O3_NC2018_processed.csv")
+# save ozone 2019 processed data
+write.csv(ozone_2019_subset, row.names = FALSE,
+          file = "../Data/Processed/EPAair_O3_NC2019_processed.csv")
+# save PM 2018 processed data
+write.csv(PM_2018_subset_adjusted, row.names = FALSE,
+          file = "../Data/Processed/EPAair_PM25_NC2018_processed.csv")
+# save PM 2019 processed data
+write.csv(PM_2019_subset_adjusted, row.names = FALSE,
+          file = "../Data/Processed/EPAair_PM25_NC2019_processed.csv")
 
 ```
 
@@ -61,15 +146,134 @@ The completed exercise is due on Tuesday, February 4 at 1:00 pm.
 11. Save your processed dataset with the following file name: "EPAair_O3_PM25_NC1718_Processed.csv"
 
 ```{r}
-#7
+# I want to see unique values in the site column
+unique(ozone_2018_subset$Site.Name)
+unique(ozone_2019_subset$Site.Name)
+unique(PM_2018_subset_adjusted$Site.Name)
+unique(PM_2019_subset_adjusted$Site.Name)
+# dimensions of four sep datasets
+dim(ozone_2018_subset)
+dim(ozone_2019_subset)
+dim(PM_2018_subset_adjusted)
+dim(PM_2019_subset_adjusted)
+
+#7 
+# combined four datasets into one
+combined_ozone_PM <- rbind(ozone_2018_subset, ozone_2019_subset, PM_2018_subset_adjusted, PM_2019_subset_adjusted)
+dim(combined_ozone_PM) # 37,893 rows
 
 #8
+# filter dataset for certain site ids
+combined_selected_sites <- filter(combined_ozone_PM, combined_ozone_PM$Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School"))
+dim(combined_selected_sites) # dataset narrowed to 16,510 rows
+
+NTL.PeterPaul.summaries <- 
+  NTL.phys.nutrient.data.PeterPaul %>%
+  filter(depth == 0) %>%
+  group_by(lakename, month) %>%
+  filter(!is.na(temperature_C) & !is.na(tn_ug) & !is.na(tp_ug)) %>%
+  summarise(meantemp = mean(temperature_C), #creates new columns in our dataframe (6 new cols)
+            sdtemp = sd(temperature_C), 
+            meanTN = mean(tn_ug), 
+            sdTN = sd(tn_ug), 
+            meanTP = mean(tp_ug), 
+            sdTP = sd(tp_ug))
+
+## generate daily mean values by certain groups
+# mean by date
+AQI_mean_bydate <- 
+  combined_selected_sites %>%
+  group_by(Date) %>%
+  summarise(mean(DAILY_AQI_VALUE))
+
+LAT_mean_bydate <-
+  combined_selected_sites %>%
+  group_by(Date) %>%
+  summarise(mean(SITE_LATITUDE))
+
+LONG_mean_bydate <-
+  combined_selected_sites %>%
+  group_by(Date) %>%
+  summarise(mean(SITE_LONGITUDE))
+
+# mean by site
+AQI_mean_bysite <-
+  combined_selected_sites %>%
+  group_by(Site.Name) %>%
+  summarise(mean(DAILY_AQI_VALUE))
+
+LAT_mean_bysite <-
+  combined_selected_sites %>%
+  group_by(Site.Name) %>%
+  summarise(mean(SITE_LATITUDE))
+
+LONG_mean_bysite <-
+  combined_selected_sites %>%
+  group_by(Site.Name) %>%
+  summarise(mean(SITE_LONGITUDE))
+
+# mean by aqs
+AQI_mean_byaqs <-
+  combined_selected_sites %>%
+  group_by(AQS_PARAMETER_DESC) %>%
+  summarise(mean(DAILY_AQI_VALUE))
+
+LAT_mean_byaqs <-
+  combined_selected_sites %>%
+  group_by(AQS_PARAMETER_DESC) %>%
+  summarise(mean(SITE_LATITUDE))
+
+LONG_mean_byaqs <-
+  combined_selected_sites %>%
+  group_by(AQS_PARAMETER_DESC) %>%
+  summarise(mean(SITE_LONGITUDE))
+
+# mean by county
+AQI_mean_bycounty <- 
+  combined_selected_sites %>%
+  group_by(COUNTY) %>%
+  summarise(mean(DAILY_AQI_VALUE))
+
+LAT_mean_bycounty <-
+  combined_selected_sites %>%
+  group_by(COUNTY) %>%
+  summarise(mean(SITE_LATITUDE))
+
+LONG_mean_bycounty <-
+  combined_selected_sites %>%
+  group_by(COUNTY) %>%
+  summarise(mean(SITE_LONGITUDE))
+  
+# add a month column to the dataset
+NTL.phys.data.PeterPaul1 <- mutate(NTL.phys.data.PeterPaul1, month = month(sampledate)) 
+
+# reorder columns to put month with the rest of the date variables
+NTL.phys.data.PeterPaul1 <- select(NTL.phys.data.PeterPaul1, lakeid:daynum, month, sampledate:comments)
+
+# add month and year columns ..tried to do this in three lines w/ pipe, didn't work
+combined_selected_sites_dates <- 
+  mutate(combined_selected_sites, month = month(Date)) 
+
+combined_selected_sites_dates_2 <-
+  mutate(combined_selected_sites_dates, year = year(Date))
+
+# rearrange columns
+combined_full <-
+  select(combined_selected_sites_dates_2, Date, month, year, DAILY_AQI_VALUE:SITE_LONGITUDE)
+
+# dimension check
+dim(combined_full) # hmm my dataset is about 2000 rows too long..
+# maybe I was supposed to do the mean summary step a bit differently
 
 #9
+# spread data so that measurements from ozone and pm are in separate columns
+combined_full_spread <- spread(combined_full, DAILY_AQI_VALUE, AQS_PARAMETER_DESC)
 
 #10
+# check dimensions
 
 #11
+# save file as "EPAair_O3_PM25_NC1718_Processed.csv"
 
 ```
 
