@@ -29,10 +29,10 @@ getwd()
 library(tidyverse)
 library(lubridate)
 # data
-EPA_Ozone_2018 <- read.csv("../Data/Raw/EPAair_O3_NC2018_raw.csv")
-EPA_Ozone_2019 <- read.csv("../Data/Raw/EPAair_O3_NC2019_raw.csv")
-EPA_PM25_2018 <- read.csv("../Data/Raw/EPAair_PM25_NC2018_raw.csv")
-EPA_PM25_2019 <- read.csv("../Data/Raw/EPAair_PM25_NC2019_raw.csv")
+EPA_Ozone_2018 <- read.csv("./Data/Raw/EPAair_O3_NC2018_raw.csv")
+EPA_Ozone_2019 <- read.csv("./Data/Raw/EPAair_O3_NC2019_raw.csv")
+EPA_PM25_2018 <- read.csv("./Data/Raw/EPAair_PM25_NC2018_raw.csv")
+EPA_PM25_2019 <- read.csv("./Data/Raw/EPAair_PM25_NC2019_raw.csv")
 
 #2
 ## explore ozone data
@@ -118,16 +118,16 @@ PM_2019_subset_adjusted <-
 #6
 # save ozone 2018 processed data
 write.csv(ozone_2018_subset, row.names = FALSE,
-          file = "../Data/Processed/EPAair_O3_NC2018_processed.csv")
+          file = "./Data/Processed/EPAair_O3_NC2018_processed.csv")
 # save ozone 2019 processed data
 write.csv(ozone_2019_subset, row.names = FALSE,
-          file = "../Data/Processed/EPAair_O3_NC2019_processed.csv")
+          file = "./Data/Processed/EPAair_O3_NC2019_processed.csv")
 # save PM 2018 processed data
 write.csv(PM_2018_subset_adjusted, row.names = FALSE,
-          file = "../Data/Processed/EPAair_PM25_NC2018_processed.csv")
+          file = "./Data/Processed/EPAair_PM25_NC2018_processed.csv")
 # save PM 2019 processed data
 write.csv(PM_2019_subset_adjusted, row.names = FALSE,
-          file = "../Data/Processed/EPAair_PM25_NC2019_processed.csv")
+          file = "./Data/Processed/EPAair_PM25_NC2019_processed.csv")
 
 ```
 
