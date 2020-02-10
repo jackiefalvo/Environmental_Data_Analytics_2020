@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5: Data Visualization"
-author: "Student Name"
+author: Cristiana Falvo
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -29,6 +29,9 @@ The completed exercise is due on Tuesday, February 11 at 1:00 pm.
 
 ```{r}
 #1
+getwd()
+library(tidyverse)
+library(cowplot)
 
 
 #2
