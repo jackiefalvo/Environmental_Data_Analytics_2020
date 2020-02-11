@@ -32,9 +32,25 @@ The completed exercise is due on Tuesday, February 11 at 1:00 pm.
 getwd()
 library(tidyverse)
 library(cowplot)
+chem_nutrients <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv")
+chem_physics <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NTL-LTER_Lake_ChemistryPhysics_PeterPaul_Processed.csv")
+nutrients_wide <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
+nutrients_gathered <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv")
+NIWOT <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 
 
 #2
+class(chem_nutrients$sampledate)
+class(chem_physics$sampledate)
+class(nutrients_gathered$sampledate)
+class(nutrients_wide$sampledate)
+class(NIWOT$collectDate)
+
+chem_nutrients$sampledate <- as.Date(chem_nutrients$sampledate, format = "%Y/%m/%d")
+chem_physics$sampledate <- as.Date(chem_physics$sampledate, format = "%Y-%m-%d")
+nutrients_wide$sampledate <- as.Date(nutrients_wide$sampledate, format = "%Y/%m/%d")
+nutrients_gathered$sampledate <- as.Date(nutrients_gathered$sampledate, format = "%Y/%m/%d")
+NIWOT$collectDate <- as.Date(NIWOT$collectDate, format = "%Y/%m/%d")
 
 
 ```
@@ -42,7 +58,9 @@ library(cowplot)
 3. Build a theme and set it as your default theme.
 
 ```{r}
-
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
 
 ```
 
