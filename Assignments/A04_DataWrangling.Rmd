@@ -105,6 +105,10 @@ PM_2018_subset <- select(EPA_PM25_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PA
 # select columns for PM 2019
 PM_2019_subset <- select(EPA_PM25_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
+class(ozone_2018_subset$Date)
+class(ozone_2019_subset$Date)
+
+
 #5
 # change desc field of PM 2018 subset data
 PM_2018_subset_adjusted <-
@@ -114,6 +118,9 @@ PM_2018_subset_adjusted <-
 PM_2019_subset_adjusted <-
   PM_2019_subset %>%
   mutate(AQS_PARAMETER_DESC = "PM2.5")
+
+class(PM_2018_subset_adjusted$Date)
+class(PM_2019_subset_adjusted$Date)
 
 #6
 # save ozone 2018 processed data
@@ -161,25 +168,28 @@ dim(PM_2019_subset_adjusted)
 # combined four datasets into one
 combined_ozone_PM <- rbind(ozone_2018_subset, ozone_2019_subset, PM_2018_subset_adjusted, PM_2019_subset_adjusted)
 dim(combined_ozone_PM) # 37,893 rows
-class(combined_ozone_PM$Date)
 
 combined_ozone_PM$Date <- as.Date(combined_ozone_PM$Date, format = "%Y-%m-%d")
 class(combined_ozone_PM$Date)
 
 #8
-combined_narrowed <- 
+combined_sites <-
   combined_ozone_PM %>%
-  filter(combined_ozone_PM, combined_ozone_PM$Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School")) %>%
+  filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School"))
+
+combined_narrowed <-
+  combined_ozone_PM %>%
+  filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School")) %>%
   group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%
   summarise(meanAQI = mean(DAILY_AQI_VALUE),
-            meanLAT = mean(SITE_LATITUDE), 
+            meanLAT = mean(SITE_LATITUDE),
             meanLONG = mean(SITE_LONGITUDE)) %>%
   mutate(month = month(Date), year = year(Date)) %>%
-  #select(month, year, Date:meanLATITUDE)
+  select(month, year, Date:meanLAT)
   
-view(combined_narrowed)
-
-view(combined_narrowed)  
+dim(combined_narrowed)
+  
+ 
 #   combined_selected_sites_dates <- 
 #   mutate(combined_selected_sites, month = month(Date)) 
 # 
@@ -201,7 +211,8 @@ view(combined_narrowed)
 #             meanTP = mean(tp_ug), 
 #             sdTP = sd(tp_ug))
 
-
+```
+```{r}
 # rearrange columns
 combined_full <-
   select(combined_selected_sites_dates_2, Date, month, year, DAILY_AQI_VALUE:SITE_LONGITUDE)
