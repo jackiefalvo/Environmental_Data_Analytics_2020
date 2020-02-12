@@ -172,10 +172,33 @@ dim(combined_ozone_PM) # 37,893 rows
 combined_ozone_PM$Date <- as.Date(combined_ozone_PM$Date, format = "%Y-%m-%d")
 class(combined_ozone_PM$Date)
 
+
 #8
 combined_sites <-
   combined_ozone_PM %>%
   filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School"))
+
+# seeing the difference between full combo and combo w/ sp sites
+## str and sitename outputs say same amount of sites (51 levels, # of sites in full combo)
+## I know that R is just storing all the sites behind the scenes, and the combo_sites is only specified sites after testing..
+### showing intersect between full and sites combo shows the correct/expected commonalities
+### viewing combo_sites dataframe, there was no data for sites we didn't select in filter function
+intersect(combined_ozone_PM$Site.Name, combined_sites$Site.Name)
+str(combined_ozone_PM)
+str(combined_sites)
+combined_ozone_PM$Site.Name
+combined_sites$Site.Name
+
+# trying to look piece by piece at group_by function to see what it's doing..see notebook for Q
+combined_group_date_desc <- 
+  combined_sites %>%
+  group_by(Date, AQS_PARAMETER_DESC) %>%
+  summarise(meanAQI = mean(DAILY_AQI_VALUE),
+            meanLAT = mean(SITE_LATITUDE),
+            meanLONG = mean(SITE_LONGITUDE))
+
+view(combined_group_date)
+view(combined_group_date_desc)
 
 combined_narrowed <-
   combined_ozone_PM %>%
@@ -185,52 +208,18 @@ combined_narrowed <-
             meanLAT = mean(SITE_LATITUDE),
             meanLONG = mean(SITE_LONGITUDE)) %>%
   mutate(month = month(Date), year = year(Date)) %>%
-  select(month, year, Date:meanLAT)
+  select(month, year, Date:meanLONG)
   
-dim(combined_narrowed)
-  
- 
-#   combined_selected_sites_dates <- 
-#   mutate(combined_selected_sites, month = month(Date)) 
-# 
-# combined_selected_sites_dates_2 <-
-#   mutate(combined_selected_sites_dates, year = year(Date))
-  
-  
+dim(combined_narrowed) #14,752 x 9 -- as expected
 
-# 
-# NTL.PeterPaul.summaries <- 
-#   NTL.phys.nutrient.data.PeterPaul %>%
-#   filter(depth == 0) %>%
-#   group_by(lakename, month) %>%
-#   filter(!is.na(temperature_C) & !is.na(tn_ug) & !is.na(tp_ug)) %>%
-#   summarise(meantemp = mean(temperature_C), #creates new columns in our dataframe (6 new cols)
-#             sdtemp = sd(temperature_C), 
-#             meanTN = mean(tn_ug), 
-#             sdTN = sd(tn_ug), 
-#             meanTP = mean(tp_ug), 
-#             sdTP = sd(tp_ug))
-
-```
-```{r}
-# rearrange columns
-combined_full <-
-  select(combined_selected_sites_dates_2, Date, month, year, DAILY_AQI_VALUE:SITE_LONGITUDE)
-
-# dimension check
-dim(combined_full) # hmm my dataset is about 2000 rows too long..
-# maybe I was supposed to do the mean summary step a bit differently
-
-#9
-# spread data so that measurements from ozone and pm are in separate columns
-combined_full_spread <- spread(combined_full, DAILY_AQI_VALUE, AQS_PARAMETER_DESC)
+# 9  Spread your datasets such that AQI values for ozone and PM2.5 are in separate columns. Each location on a specific date should now occupy only one row.
+combined_processed <- spread(combined_narrowed, AQS_PARAMETER_DESC, meanAQI)
 
 #10
-# check dimensions
+dim(combined_processed)
 
 #11
-# save file as "EPAair_O3_PM25_NC1718_Processed.csv"
-
+write.csv(combined_processed, "..EPAair_O3_PM25_NC1718_Processed.csv")
 ```
 
 
