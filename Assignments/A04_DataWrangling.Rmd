@@ -197,8 +197,8 @@ combined_group_date_desc <-
             meanLAT = mean(SITE_LATITUDE),
             meanLONG = mean(SITE_LONGITUDE))
 
-view(combined_group_date)
-view(combined_group_date_desc)
+# view(combined_group_date)
+# view(combined_group_date_desc)
 
 combined_narrowed <-
   combined_ozone_PM %>%
@@ -229,14 +229,38 @@ write.csv(combined_processed, "..EPAair_O3_PM25_NC1718_Processed.csv")
 13. Call up the dimensions of the summary dataset.
 
 ```{r}
-#12a
+combined_processed_csv <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/EPAair_O3_PM25_NC1718_Processed.csv")
 
-#12b
+str(combined_processed_csv)
+
+#12a
+combined_summary <-
+  combined_processed_csv %>%
+  group_by(Site.Name, month, year) %>%
+  summarise(meanAQI_ozone = mean(Ozone),
+            meanAQI_pm25 = mean(PM2.5))
+
+#12b remove instances where month and year are not available (drop_na)
+combined_summary_na_drop <-
+  combined_processed_csv %>%
+  group_by(Site.Name, month, year) %>%
+  summarise(meanAQI_ozone = mean(Ozone),
+            meanAQI_pm25 = mean(PM2.5)) %>%
+  drop_na()
+
+combined_summary_na_omit <-
+  combined_processed_csv %>%
+  group_by(Site.Name, month, year) %>%
+  summarise(meanAQI_ozone = mean(Ozone),
+            meanAQI_pm25 = mean(PM2.5)) %>%
+  na.omit()
 
 #13
+dim(combined_summary)
+
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: After testing both they seem to do the same thing so perhaps it doesn't matter in this case.
