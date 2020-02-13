@@ -37,10 +37,11 @@ Does total litter biomass differ among sites at the Niwot Ridge LTER?
 ```{r}
 # Wrangle the data
 Litter.Totals <- Litter %>%
-  group_by(plotID, collectDate, nlcdClass) %>%
-  summarise(dryMass = sum(dryMass))
+  group_by(plotID) %>%
+  summarise(dryMass = sum(dryMass)) # our new col for drymass = sum of drymasses for each group's row
+## .. I guess I expect to see multiple sum columns (sum for each group) but there is one
 
-# Test for normality. 
+# Test for normality.  (see if data is normally distributed)
 # Note: the important assumption for GLMs is normality of residuals, 
 # not necessarily normality of raw data. See below when we plot the model.
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"])
@@ -74,11 +75,12 @@ summary(Litter.Totals.anova2)
 # ANOVA is robust against departures from normality.
 plot(Litter.Totals.anova2)
 
-# Post-hoc test
+# Post-hoc test - run on aov object - works well with a few groups (not a lot)
 TukeyHSD(Litter.Totals.anova)
 
 # Extract groupings for pairwise relationships
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
+# plot id = predictor variable
 Litter.Totals.groups
 
 # Graph the results
@@ -89,13 +91,14 @@ Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
                label = c("abc", "ab", "abcd", "bcd", "bcd", "a", 
                          "d", "abcd", "cd", "d", "abcd", "abcd")) +
   labs(x = "Plot ID", y = "Dry Mass (g)") +
-  ylim(0, 85)
+  ylim(0, 85) # sets y axis so top part of letters aren't cut off
 print(Litter.Totals.plot)
 ```
 
 What information does the output give us? How might we report this information in a report?
 
-> 
+> The plot shows us the among of dry mass found in various plots along Niwot ridge. 
+# I can see that they are different .. but what's the main thing that shows they're significantly different?
 
 
 ### Non-parametric equivalent of ANOVA: Kruskal-Wallis Test
@@ -121,10 +124,13 @@ A two-way ANOVA allows us to examine the effects of two categorical explanatory 
 
 ```{r}
 # Format as aov
+## shows us that both funct group and land use class are sig predictors
 Litter.anova.2way <- aov(data = Litter, dryMass ~ functionalGroup + nlcdClass)
 summary(Litter.anova.2way)
 
 # Format as lm
+## we can see actual effects of each of them (lm shows a bit more info)
+## for anova we're estimating mean of each group, lm output gives you #s you need to est mean
 Litter.anova.2way2 <- lm(data = Litter, dryMass ~ functionalGroup + nlcdClass)
 summary(Litter.anova.2way2)
 
