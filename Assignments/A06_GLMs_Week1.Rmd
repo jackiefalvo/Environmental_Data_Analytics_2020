@@ -1,6 +1,6 @@
 ---
 title: "Assignment 6: GLMs week 1 (t-test and ANOVA)"
-author: "Student Name"
+author: Cristiana Falvo
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -29,10 +29,17 @@ The completed exercise is due on Tuesday, February 18 at 1:00 pm.
 
 ```{r, message = FALSE}
 #1
-
+getwd()
+library(tidyverse)
+library(lubridate)
+library(cowplot)
+library(agricolae)
+Nutrients <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
 
 #2
-
+head(Nutrients)
+Nutrients$sampledate <- as.Date(Nutrients$sampledate, format = "%Y-%m-%d") # not working
+head(Nutrients)
 ```
 
 
@@ -40,8 +47,13 @@ The completed exercise is due on Tuesday, February 18 at 1:00 pm.
 
 3. Wrangle your dataset so that it contains only surface depths and only the years 1993-1996, inclusive. Set month as a factor.
 ```{r}
+subset <- filter(Nutrients, depth == 0, year4 >= 1993 & year4 <= 1996) 
 
+subset$month <- as.factor(subset$month)
 
+class(Nutrients$year4)
+class(Nutrients$month)
+class(subset$month)
 ```
 
 ## Analysis
@@ -51,6 +63,9 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 4. Which application of the GLM will you use (t-test, one-way ANOVA, two-way ANOVA with main effects, or two-way ANOVA with interaction effects)? Justify your choice.
 
 > Answer: 
+-two independent sample test (peter and paul lakes are two independent things)
+-two-sided test (seeing if there's difference, nondirectional meaning neither is the standard)
+-
 
 5. Run your test for TN. Include examination of groupings and consider interaction effects, if relevant.
 
