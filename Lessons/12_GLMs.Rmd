@@ -56,7 +56,9 @@ cor.test(PeterPaul.chem.nutrients$irradianceWater, PeterPaul.chem.nutrients$dept
 ```
 Question: How would you report the results of this test (overall findings and report of statistical output)?
 
->  
+> At greater depths, irradiance decreases. 
+> Depth accounts for 31% of variance in lake irradiance. 
+  > (linear regression, R2 = .31, df = 15,449, p < .0001)
 
 So, we see there is a significant negative correlation between irradiance and depth (lower light levels at greater depths), and that this model explains about 31 % of the total variance in irradiance. Let's visualize this relationship and the model itself. 
 
@@ -65,15 +67,17 @@ An exploratory option to visualize the model fit is to use the function `plot`. 
 1. **Residuals vs. Fitted.** The value predicted by the line of best fit is the fitted value, and the residual is the distance of that actual value from the predicted value. By definition, there will be a balance of positive and negative residuals. Watch for drastic asymmetry from side to side or a marked departure from zero for the red line - these are signs of a poor model fit.
 
 2. **Normal Q-Q.** The points should fall close to the 1:1 line. We often see departures from 1:1 at the high and low ends of the dataset, which could be outliers. 
+## if data points are pretty normal, should fall along horz line
 
 3. **Scale-Location.** Similar to the residuals vs. fitted graph, this will graph the squared standardized residuals by the fitted values. 
 
 4. **Residuals vs. Leverage.** This graph will display potential outliers. The values that fall outside the dashed red lines (Cook's distance) are outliers for the model. Watch for drastic departures of the solid red line from horizontal - this is a sign of a poor model fit.
 
 ```{r, fig.height = 3, fig.width = 4}
-par(mfrow = c(2,2), mar=c(1,1,1,1))
+par(mfrow = c(2,2), mar=c(1,1,1,1)) # plots them all at once
 plot(irradiance.regression)
-par(mfrow = c(1,1))
+par(mfrow = c(1,1)) # sets plot window back to 1:1 (one plot at a time)
+# this is a verification of the assumptions of our test (shouldn't end up in report)
 ```
 
 The option best suited for communicating findings is to plot the explanatory and response variables as a scatterplot. 
@@ -82,7 +86,7 @@ The option best suited for communicating findings is to plot the explanatory and
 # Plot the regression
 irradiancebydepth <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
-  #ylim(0, 2000) +
+  ylim(0, 2000) + # doesn't change data, just adjusts display
   geom_point() 
 print(irradiancebydepth) 
 ```
@@ -102,7 +106,7 @@ par(mfrow = c(1,1))
 # Add a line and standard error for the linear regression
 irradiancebydepth2 <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
-  geom_smooth(method = "lm") +
+  geom_smooth(method = "lm") + #plots 2 different vars against each other,makes line of best fit
   scale_y_log10() +
   geom_point() 
 print(irradiancebydepth2) 
@@ -110,10 +114,12 @@ print(irradiancebydepth2)
 # SE can also be removed
 irradiancebydepth2 <- 
     ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
-    geom_point() +
+    geom_point(pch = 1, color = "purple") +
     scale_y_log10() +
+    labs(x = "Depth (m)", y = "Irradiance (rz)") +
     geom_smooth(method = 'lm', se = FALSE, color = "black")
 print(irradiancebydepth2)
+# shows standard error of model, NOT confidence interval of your data
 
 # Make the graph attractive
 
@@ -125,10 +131,14 @@ As with the t-test and ANOVA, there is a nonparametric variant to the linear reg
 ``` {r}
 cor.test(PeterPaul.chem.nutrients$irradianceWater, PeterPaul.chem.nutrients$depth, 
          method = "spearman", exact = FALSE)
+# this is good alternative if you're not fulfilling the assumptions of a linear regression
+  # what are the assumptions of a linear regression?
 ```
 
 ## Multiple Regression
 It is possible, and often useful, to consider multiple continuous explanatory variables at a time in a linear regression. For example, total phosphorus concentration in Paul Lake (the unfertilized lake) could be dependent on depth and dissolved oxygen concentration: 
+
+# consider variables all at once
 
 ``` {r, fig.height = 3, fig.width = 4}
 TPregression <- lm(data = subset(PeterPaul.chem.nutrients, lakename == "Paul Lake"), 
@@ -156,10 +166,13 @@ library(corrplot)
 PeterPaulnutrients <- 
   PeterPaul.chem.nutrients %>%
   select(tn_ug:po4) %>%
-  na.omit()
-PeterPaulCorr <- cor(PeterPaulnutrients)
+  na.omit() # omits any row that contains one NA
+PeterPaulCorr <- cor(PeterPaulnutrients) # running cor function on this max turns it into a correlation matrix
 corrplot(PeterPaulCorr, method = "ellipse")
+# stronger correlations = skinnier ellipse, more intense colors
+# duplicate values are shown as lines
 corrplot.mixed(PeterPaulCorr, upper = "ellipse")
+# shows numbers..
 ```
 
 ## AIC to select variables
@@ -177,6 +190,10 @@ TPAIC <- lm(data = Paul.naomit, tp_ug ~ depth + dissolvedOxygen +
               temperature_C + tn_ug + po4)
 step(TPAIC)
 TPmodel <- lm(data = Paul.naomit, tp_ug ~ dissolvedOxygen + temperature_C + tn_ug)
+# gives combos (all vars, each var individually)
+## computes AIC value for each of the different options
+### stacks AIC values and determines which is lowest
+### runs the lowest one, with all 4 of the vars, then sees out of new combos which is lowest
 summary(TPmodel)
 
 ```
