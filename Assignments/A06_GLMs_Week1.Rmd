@@ -32,6 +32,7 @@ The completed exercise is due on Tuesday, February 18 at 1:00 pm.
 getwd()
 library(tidyverse)
 library(lubridate)
+library(ggplot2)
 library(cowplot)
 library(agricolae)
 Nutrients <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv")
@@ -40,6 +41,7 @@ Nutrients <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environment
 head(Nutrients)
 Nutrients$sampledate <- as.Date(Nutrients$sampledate, format = "%Y-%m-%d") # not working
 head(Nutrients)
+str(Nutrients)
 ```
 
 
@@ -62,21 +64,37 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 
 4. Which application of the GLM will you use (t-test, one-way ANOVA, two-way ANOVA with main effects, or two-way ANOVA with interaction effects)? Justify your choice.
 
-> Answer: 
--two independent sample test (peter and paul lakes are two independent things)
+> Answer: t-test
+-two independent samples test (peter and paul lakes are two independent groups we want to compare)
 -two-sided test (seeing if there's difference, nondirectional meaning neither is the standard)
--
 
 5. Run your test for TN. Include examination of groupings and consider interaction effects, if relevant.
 
 6. Run your test for TP. Include examination of groupings and consider interaction effects, if relevant.
 
+
 ```{r}
 #5
+shapiro.test(subset$tn_ug)
 
+ggplot(subset, aes(x = tn_ug, color = lakename)) +
+  geom_histogram()
+
+qqnorm(subset$tn_ug); qqline(subset$tn_ug)
+
+O3.onesample <- t.test(subset$tn_ug, mu = 50, alternative = "two.sided")
+O3.onesample
 
 #6
+shapiro.test(subset$tp_ug)
 
+ggplot(subset, aes(x = tp_ug, color = lakename)) +
+  geom_histogram()
+
+qqnorm(subset$tp_ug); qqline(subset$tp_ug)
+
+O3.onesample <- t.test(subset$tp_ug, mu = 50, alternative = "two.sided")
+O3.onesample
 
 ```
 
@@ -86,9 +104,22 @@ Peter Lake was manipulated with additions of nitrogen and phosphorus over the ye
 
 ```{r}
 #7
+# plot 1 (TN)
+TN <- ggplot(subset, aes(x = month, y = tn_ug, color = lakename)) +
+  geom_boxplot()
+print(TN)
 
+# plot 2 (TP)
+TP <- ggplot(subset, aes(x = month, y = tp_ug, color = lakename)) +
+  geom_boxplot()
+print(TP)
 
 #8
+# cowplot
+legendA <- get_legend(TN + theme(legend.box.margin = margin(0, 0, 0, 12)))
+
+combined <- plot_grid(TN, TP, legendA, ncol = 1, nrow = 2)
+print(combined)
 
 ```
 
