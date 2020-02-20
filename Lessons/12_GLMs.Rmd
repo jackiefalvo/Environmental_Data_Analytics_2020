@@ -194,6 +194,9 @@ TPmodel <- lm(data = Paul.naomit, tp_ug ~ dissolvedOxygen + temperature_C + tn_u
 ## computes AIC value for each of the different options
 ### stacks AIC values and determines which is lowest
 ### runs the lowest one, with all 4 of the vars, then sees out of new combos which is lowest
+
+# basically compares higherst Rsq you can get and degrees of freedom...
+## want a better fit but it's giving us a penalty for adding additional variables
 summary(TPmodel)
 
 ```
