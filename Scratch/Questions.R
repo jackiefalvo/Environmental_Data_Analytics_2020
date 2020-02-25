@@ -18,4 +18,4 @@ c("thing 1", "thing 2", "etc.") # is this like a python list?
 
 # what's up with ~ ?
 
-# using plot() vs. greating ggplot() plot
+# using plot() vs. creating ggplot() plot

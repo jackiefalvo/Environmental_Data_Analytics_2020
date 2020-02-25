@@ -39,7 +39,7 @@ Nutrients <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environment
 
 #2
 head(Nutrients)
-Nutrients$sampledate <- as.Date(Nutrients$sampledate, format = "%Y-%m-%d") # not working
+Nutrients$sampledate <- as.Date(Nutrients$sampledate, format = "%Y-%m-%d") # not working..
 head(Nutrients)
 str(Nutrients)
 ```
