@@ -27,41 +27,99 @@ The completed exercise is due on Tuesday, February 25 at 1:00 pm.
 
 ```{r}
 #1
-
+getwd()
+library(tidyverse)
+library(nlme)
+library(piecewiseSEM)
+# to visualize linear reg
+require(ggiraph)
+require(ggiraphExtra)
+require(plyr)
+# data
+chem_phys <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv")
+litter <- read.csv("/Users/cristiana/Documents/Duke/DataAnalytics/Environmental_Data_Analytics_2020/Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv")
 
 #2
-
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
 ```
 
 
 ## NTL-LTER test
 Research question: What is the best set of predictors for lake temperatures in July across the monitoring period at the North Temperate Lakes LTER? 
+  
+  # is this asking, what's the optimal combination of variables (aic..) to predict lake temps in july?
 
 3. Wrangle your NTL-LTER dataset with a pipe function so that it contains only the following criteria: 
 
-* Only dates in July (hint: use the daynum column). No need to consider leap years.
-* Only the columns: lakename, year4, daynum, depth, temperature_C
-* Only complete cases (i.e., remove NAs)
+* Only dates in July (hint: use the daynum column). No need to consider leap years. (182-212)
+* Only the columns: lakename, year4, daynum, depth, temperature_C (select())
+* Only complete cases (i.e., remove NAs) (na.omit(data))
 
 4. Run an AIC to determine what set of explanatory variables (year4, daynum, depth) is best suited to predict temperature. Run a multiple regression on the recommended set of variables. 
+  # run aic, this will give optimal combo of variables
+  # with this optimal set of vars, run a 'multiple regression'
 
 ```{r}
-#3
+#3 get subset of data
+chem_phys_subset <- 
+  chem_phys %>%
+  filter(daynum >= 182 & daynum <= 212) %>%
+  select(lakename, year4, daynum, depth, temperature_C) %>% # 10,836
+  na.omit(chem_phys_subset)
 
+# see relationships between variables
+  # hmmm what did we do in the gis lab..
 
-#4
+#4 run AIC to determine best combination of predictor variables
+temp_AIC <- lm(data = chem_phys_subset, temperature_C ~ year4 + daynum + depth) # told which eq to use
+step(temp_AIC) # ..what does this tell us, the orig three is the best combo after all?
+  # where it says "Call:" I think that's the recommended equation
 
+temp_model <- lm(data = chem_phys_subset, temperature_C ~ year4 + daynum + depth)
+summary(temp_model) 
+# is this model the multiple regression?
+# is there a way to visualize it?
+
+# visualize individual relatinships (switch between year, daynum, depth - depth is only one with noteable correlation)
+linear_reg_rel <- 
+  ggplot(chem_phys_subset, aes(x = depth, y = temperature_C)) +
+  geom_point(alpha = .5) +
+  geom_smooth(method = lm)
+print(linear_reg_rel)
+
+# visualize model ..hm, not working
+linear_reg_model <- 
+  ggPredict(temp_model, se = TRUE, interactive = TRUE)
+print(linear_reg_model)
+
+# test to see if fewer vars make model turn out differently
+temp_model_2 <- lm(data = chem_phys_subset, temperature_C ~ year4 + depth)
+summary(temp_model_2)
+# taking daynumber away we get 73.92% of variance explained
+
+temp_model_3 <- lm(data = chem_phys_subset, temperature_C ~ daynum + depth)
+summary(temp_model_3)
+# without year and just daynum we get 74.15% of variance explained
+print(summary(temp_model))
 ```
 
 5. What is the final set of explanatory variables that predict temperature from your multiple regression? How much of the observed variance does this model explain?
 
-> Answer: 
+> Answer: The final set of explanatory variables determined by our AIC analysis are year, day number and depth (the same variables we started with). The model explains 74.17% of variance. 
 
 6. Run an interaction effects ANCOVA to predict temperature based on depth and lakename from the same wrangled dataset.
 
 ```{r}
 #6
+# want to see dif between main and interaction
+temp_ANCOVA_main <- lm(data = chem_phys_subset, temperature_C ~ depth + lakename)
+temp_ANCOVA_interaction <- lm(data = chem_phys_subset, temperature_C ~ depth * lakename)
 
+summary(temp_ANCOVA_main) # 77.73% var explained
+summary(temp_ANCOVA_interaction) # 78.57% var explained
 ```
 
 7. Is there a significant interaction between depth and lakename? How much variance in the temperature observations does this explain?
@@ -72,6 +130,14 @@ Research question: What is the best set of predictors for lake temperatures in J
 
 ```{r}
 #8
+temp_depth <- 
+  ggplot(chem_phys_subset, aes(x = depth, y = temperature_C, color = lakename)) +
+  geom_point(alpha = .5) +
+  ylim(0, 35) +
+  labs(x = "Depth (m)", y = "Temperature (˚C)") +
+  geom_smooth(method = 'lm', se = FALSE)
+
+print(temp_depth)
 
 ```
 

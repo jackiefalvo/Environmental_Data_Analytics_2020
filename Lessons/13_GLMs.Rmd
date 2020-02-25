@@ -45,17 +45,29 @@ Let's say we wanted to predict total nitrogen concentrations by depth and by lak
 # main effects
 TNancova.main <- lm(data = PeterPaul.chem.nutrients, tn_ug ~ lakename + depth)
 summary(TNancova.main)
+# interp
+  #
+  # 
 
-# interaction effects
+# interaction effects - supposing we might have dif interactions for each lake, also might have dif slopes
 TNancova.interaction <- lm(data = PeterPaul.chem.nutrients, tn_ug ~ lakename * depth)
 summary(TNancova.interaction)
+# interp
+  # 4 coefficients, all predicting a sig effect
+  # our intersect represents paul lake at depth of 0 (228.7)
+  # surface level of peter lake is sig higher
+  # if lake is paul lake, with increase of 1m in depth, increase of 90.89, 
+  # in peter lake, with increase of 1m in depth, decrease of 35.156
 
 TNplot <- ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = tn_ug, color = lakename)) + 
-  geom_point() + 
+  geom_point(alpha = .5) + # transparency
   geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Depth (m)", y = expression(TN ~ (mu*g / L)), color = "") +
+  # scale_color_brewer(palette = 'Dark') +
+  scale_color_manual(values = c("dark blue", "light blue")) +
   xlim(0, 10)
 print(TNplot)
-
+# there's a significantly different slope (the effect of depth is much dif in each lake)
 # Make the graph attractive
 ```
 
@@ -121,10 +133,10 @@ ggplot(NTL.summertemp, aes(x = year4, y = temperature_C, color = lakename)) +
   geom_abline(intercept = -97.72, slope = 0.06) +
   # make it look better
   labs(x = "", y = expression("Temperature " ( degree~C)), color = "") +
-  theme(legend.spacing.x = unit(0, "cm"))
+  theme(legend.spacing.x = unit(0, "cm")) # legend spacing
 print(NTL.tempmodel)
 ```
 
 Question: How would you interpret the collective results of your mixed effects model in the context of the study question?
 
-> ANSWER: 
+> ANSWER: Summer temps in the sampled Wisconsin lakes seem to have changed over time (between 1985 and 2015) and we determined this with time as the main (fixed) factor and neglected the variability between the lakes. 
