@@ -88,6 +88,9 @@ The coefficients of a hierarchical model are divided into two categories: **fixe
 A common variable in hierarchical models is **space.** In many situations, we may want to infer conditions beyond the sites that we have sampled. By treating space as a random variable, we may be able to extrapolate conditions of the response variable across a spatial gradient. 
 
 Let's think about the situation of temperature monitoring in the NTL-LTER lakes. We might be interested to know whether surface temperatures in July have increased over time in response to climate change. However, we know that there may be variability across lakes that may obscure the trend we see in temperature. We can set lake as a random effect to account for the across-lake variability and also enable us to extrapolate across lakes in northern Wisconsin.
+# LTER lake data -- looking to predict temp
+  # fixed effects = time
+  # random effects = lake name (accounts for variability, not the factor we're looking to examine)
 
 Let's wrangle our data and visualize a preliminary relationship between our variables of interest.
 
