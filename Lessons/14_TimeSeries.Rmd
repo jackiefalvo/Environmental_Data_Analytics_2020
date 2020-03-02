@@ -224,10 +224,10 @@ summary(NCAir$Site.Name)
 NCAir.Garinger <- NCAir %>%
   filter(Site.Name == "Garinger High School")
 
-GaringerOzone <-
+GaringerOzone_plot <-
 ggplot(NCAir.Garinger, aes(x = Date, y = Ozone)) +
   geom_point() 
-print(GaringerOzone)
+print(GaringerOzone_plot)
 
 # na.approx function fills in NAs with a linear interpolation
 # Spline interpolation can also be specified as an alternative
@@ -269,10 +269,6 @@ EnoDischarge.late.monthly <- EnoDischarge.late %>%
   group_by(Year, Month) %>%
   summarise(Discharge = mean(discharge.mean)) 
   
-EnoDischarge.late.monthly$Date <- as.Date(paste(EnoDischarge.late.monthly$Year, 
-                                                EnoDischarge.late.monthly$Month, 
-                                                1, sep="-"), 
-                                          format = "%Y-%m-%d")
 view(EnoDischarge.late.monthly)
 
 # Generate time series (smk.test needs ts, not data.frame)
