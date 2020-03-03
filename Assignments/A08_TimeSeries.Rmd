@@ -1,9 +1,13 @@
 ---
-title: "Assignment 8: Time Series Analysis"
-author: Cristiana Falvo
-output: pdf_document
+title: 'Assignment 8: Time Series Analysis'
+author: "Cristiana Falvo"
 geometry: margin=2.54cm
-editor_options: 
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+editor_options:
   chunk_output_type: console
 ---
 
@@ -102,7 +106,9 @@ Combined_subset_daterange <-
   Combined_subset %>%
   filter(Date >= "2010-01-01" & Date <= "2019-12-13")
 
-Days <- as.data.frame(seq(as.Date("2010-01-01"), as.Date("2019-12-31"), "day")) 
+# x <- seq(as.Date("2010-01-01"), as.Date("2019-12-31"), "day")
+# Days <- as.data.frame(x)
+Days <- as.data.frame(seq(as.Date("2010-01-01"), as.Date("2019-12-31"), "day"))
 
 colnames(Days)
 colnames(Days) <- colnames()
@@ -141,7 +147,7 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 11. Run a time series analysis. In this case the seasonal Mann-Kendall is most appropriate; why is this?
 
-> Answer: Seasonal Mann-Kendall is the most appropriate time series analysis to run because our data are seasonal, non-parametric and not temporally autocorrelated. 
+> Answer: Seasonal Mann-Kendall is the most appropriate time series analysis to run because we're looking for a longterm monotonic trend in data that was collected year-round, is not normally distributed and is not temporally autocorrelated.
 
 12. To figure out the slope of the trend, run the function `sea.sens.slope` on the time series dataset. 
 
@@ -168,6 +174,8 @@ GaringerOzone.monthly.ts <- ts(GraingerOzone_monthly$MonthlyMeanOzone, frequency
                                start = c(2010, 1, 1), end = c(2019, 12, 31))
 
 # 11
+  # high positive S = increasing trend
+  # low negative S = decreasing trend
 GaringerOzone.monthly.trend <- smk.test(GaringerOzone.monthly.ts)
 GaringerOzone.monthly.trend
 
@@ -186,4 +194,5 @@ print(Ozone_ot_mean.monthly)
 
 14. To accompany your graph, summarize your results in context of the research question. Include output from the statistical test in parentheses at the end of your sentence. Feel free to use multiple sentences in your interpretation.
 
-> Answer: The most consistent trend in our data is a seasonal spike in ozone concentration during the summer months, followed by a drop in ozone concentration in the winter months. 
+> Answer: The monthly mean ozone values from Garinger High School have consitent seasonal spikes during the summer months (as shown by the graph) and an overall decreasing monotonic trend (as suggested by our Mann-Kendall test). The overall decreasing trend in ozone concentration is slight, as reflected by our slope calculation (Seasonal Mann-Kendall trend test: S = -77, sea sens slope test: slope = -0.0002).
+
