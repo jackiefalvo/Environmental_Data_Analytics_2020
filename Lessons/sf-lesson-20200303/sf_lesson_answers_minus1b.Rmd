@@ -12,7 +12,6 @@ editor_options:
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(eval = FALSE)
-getwd()
 ```
 
 # 1. INTRODUCTION
@@ -83,9 +82,6 @@ here()
 # use here to generate a data path
 # here("directory1", "directory2", "...", "file.extension")
 here("data", "tabular_data", "conterm_basinid.txt")
-here("Lessons", "sf-lesson-20200303", "sf_cheetsheet.pdf")
-here("Lessons")
-here("sf_cheetsheet.pdf")
 # for mac: [1] "/User/.../sf-lesson/data/tabular_data/conterm_basinid.txt"
 # for windows: [1] "C:\\...\sf-lesson\data\tabular_data\conterm_basinid.txt"
 
@@ -267,13 +263,7 @@ Here is what the spatial data for this lesson looks like (Figure 4). Southeast s
 Start by reading in the basin boundaries for non-reference (i.e., notable human impact) for the Southeast Plains using `st_read()` from the sf package. Notice how you only call the .shp file here. You don't need to include all the other files that come along with the .shp file (i.e., .prj, .sbn, .shx, .sbx, .dbf, etc.).
 
 ```{r read.in.some.data}
-here()
 basins_nf_seplains_raw <- st_read(here("data", "spatial_data", "bas_nonref_SEPlains.shp"))
-gagesll_9322_test <- st_read(here("data", "spatial_data", "gagesII_9322_sept30_2011.shp")) 
-
-
-
-basins_nf_seplains_raw
 # note how I'm using the here package!
 ```
 
@@ -289,9 +279,9 @@ I like to always save a copy of the raw data in my R session and rename all new 
 
 ```{r activity.load.data}
 # add your code here
-gages_raw <- 
-southeast_state_bounds_raw <- 
-my_tabular_data_raw <- 
+gages_raw <- st_read(here("data", "spatial_data", "gagesII_9322_sept30_2011.shp"))
+southeast_state_bounds_raw <- st_read(here("data", "spatial_data", "southeast_state_bounds.shp"))
+my_tabular_data_raw <- read_csv(here("data", "tabular_data", "conterm_climate.txt")) # I'm choosing climate data here
 
 # red warning text is telling you how the data is being parsed
 ```
@@ -314,8 +304,15 @@ Use base R commands to answer the following questions (for basins_nf_seplains_ra
 ```{r activity.check.out.data}
 
 # add your code here
+class(basins_nf_seplains_raw)
+names(basins_nf_seplains_raw)
+length(names(basins_nf_seplains_raw))
+attributes(basins_nf_seplains_raw)
+head(basins_nf_seplains_raw)
 
 # bonus, add your code here
+glimpse(basins_nf_seplains_raw)
+summary(basins_nf_seplains_raw)
 ```
 
 While not in base, you can also use glimpse() from the tibble (tidyverse) package to look at basin_nf_seplains_raw.
@@ -335,6 +332,9 @@ Use st_crs() to look at the CRSs of the spatial data you have loaded up so far. 
 
 ```{r activity.check.out.data.again}
 # add your code here
+st_crs(basins_nf_seplains_raw)
+st_crs(gages_raw)
+st_crs(southeast_state_bounds_raw)
 
 # first two will not have EPSG code but have proj4 string (i.e., "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
 
@@ -381,32 +381,51 @@ Last, check the CRSs of each.
 ```{r activity.setting.projecting}
 # define proj4 string and EPSG code
 # add your code here
-my_proj4 <- 
-my_epsg <- 
+my_proj4 <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+my_epsg <- 5070
 
 # setting projections
 # set the proj4 string first and then set the EPSG code (because proj4 will over-ride EPSG if you set EPSG first)
 # add your code here
 # basins
 basins_nf_seplains <- basins_nf_seplains_raw
+st_crs(basins_nf_seplains) <- my_proj4
+basins_nf_seplains <- basins_nf_seplains %>%
+  st_set_crs(my_epsg)
+st_crs(basins_nf_seplains)
 
 # add your code here
 # gages
 gages <- gages_raw
+st_crs(gages) <- my_proj4
+gages <- gages %>%
+  st_set_crs(my_epsg)
+st_crs(gages)
 
 # state bounds
 # this one looks good so you don't need to do anything but here's the code anyway
 # add your code here
 southeast_state_bounds <- southeast_state_bounds_raw
+st_crs(southeast_state_bounds) <- my_proj4
+southeast_state_bounds <- southeast_state_bounds %>%
+  st_set_crs(my_epsg)
+st_crs(southeast_state_bounds)
 
 # projecting to North America Albers Equal Area Conic
 # add your code here
-na_albers_proj4 <- 
-na_albers_epsg <- 
+na_albers_proj4 <- "+proj=aea +lat_1=20 +lat_2=60 +lat_0=40 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs"
+na_albers_epsg <- 102008
 # set the proj4 string first and then set the EPSG code (because proj4 will over-ride EPSG if you set EPSG first)
+southeast_state_bounds_na_albers <-  sf::st_transform(southeast_state_bounds, crs = na_albers_proj4) %>%
+  st_set_crs(na_albers_epsg)
 
 # check CRSs
 # add your code here
+st_crs(basins_nf_seplains)
+st_crs(gages)
+st_crs(southeast_state_bounds)
+st_crs(southeast_state_bounds_na_albers)
+# first three should be the same!
 ```
 
 ### 2.6 Converting sp Objects to sf Objects and Vice Versa
@@ -537,21 +556,35 @@ Bonus: What are some other spatial operations (or confirmations) that you could 
 ```{r activity.gages.select}
 # select a state, here I'm choosing North Carolina (NC)
 # add your code here
+nc_state_bounds_geom <- southeast_state_bounds %>%
+  filter(NAME == "North Carolina") %>%
+  st_geometry()
+  # if I wanted Florida instead, what would I need to do?
 
 # check
 # add your code here
+head(nc_state_bounds_geom)
 
 # select watersheds that intersect with NC bounds
 # add your code here
+nc_basins_nf_seplains <- basins_nf_seplains %>%
+  st_intersection(nc_state_bounds_geom)
 
 # check
 # add your code here
+head(nc_basins_nf_seplains)
 
 # select gages that fall within NC bounds
 # add your code here
+nc_gages <- gages %>%
+  st_intersection(nc_state_bounds_geom)
 
 # bonus
 # add your code here
+nc_area <- st_area(nc_state_bounds_geom) # find the area of NC
+nc_centroid <- st_centroid(nc_state_bounds_geom) # find the centroid of the NC
+nc_gages_buffer_100m <- st_buffer(nc_gages, dist = 100) # make a buffer around the stream gages in NC
+not_nc_gages <- st_difference(gages, nc_state_bounds_geom) # find stream gages not in NC
 ```
 
 It's really helpful to actually plot these results before moving forward with your work. That way you an make sure the sf commands are doing what you expect. We'll talk about plotting next...
@@ -595,8 +628,13 @@ Let's check your operations from the 3.1.2 activity. You are trying for somethin
 
 ```{r activity.checking.operations}
 # plot NC watershed boundardies from 3.1.2
-pdf(here("outputs", "spatial_operations_test_fig.pdf"), width = 11, height = 8.5)
 # add your code here
+pdf(here("outputs", "spatial_operations_test_fig.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = nc_state_bounds_geom, fill = NA) +
+  geom_sf(data = nc_basins_nf_seplains, alpha = 0.25) +
+  geom_sf(data = nc_gages, lwd = 1) +
+  theme_bw()
 dev.off()
 ```
 
@@ -665,27 +703,37 @@ Can you reproduce Figure 1b?
 # select NC
 # add your code here
 
+
 # make figure 1b
 # find watersheds that overlap with NC (want the whole watershed, not just the part of the watershe that's inside the NC bounds)
 # add your code here
 
+
 # look at result
 # add your code here
+# shows first 6 results list of integers where 0 = false and 1 = true
+# still is an sf object but is different than what we're used to
 
 # make a function to convert binary to logic
 # add your code here
 
+# source: http://rpubs.com/sogletr/sf-ops
+
 # map function on data and select only true values
 # add your code here
 
+
 # look at result
 # add your code here
+# shows first 6 results (they are all FALSE)
 
 # use nc_basins_overlap_logic to select only watersheds that overlap
 # add your code here
+# Maybe there's an alternative tidyverse-based way using which and %in%?
 
 # check class
 # add your code here
+# sf object
 
 # select Southeast gages only
 # add your code here
@@ -693,16 +741,16 @@ Can you reproduce Figure 1b?
 
 # use nc_basins_overlap_sel to find gages inside
 # add your code here
+
 # stretch break...this might take a while to run
 
 # convert all to WGS84
 # add your code here
 
+
 # plot figure 1b
 # add your code here
-pdf(here("outputs", "figure_1b.pdf"), width = 11, height = 8.5)
-# add your code here
-dev.off()
+
 ```
 
 ### 3.3 Mixing Spatial and Tabular Data
@@ -757,16 +805,28 @@ Practice joining other types of tabular data onto the spatial datasets provided 
 ```{r activity.joining.basin.data}
 # use NC overlapping watersheds from 3.2.2
 # add your code here
+nc_basins_overlap_sel_fix <- nc_basins_overlap_sel %>%
+  mutate(STAID = as.character(GAGE_ID)) # convert to character b/c STAID in my_tabular_data is character
 
 # join tabular data
 # add your code here
+nc_basins_overlap_sel_climate <- nc_basins_overlap_sel_fix %>%
+  left_join(my_tabular_data_raw, by = "STAID")
 
 # check result
 # add your code here
+names(nc_basins_overlap_sel_climate)
+# I used the climate tabular data in this example so I'm going to select the WD_BASIN variable which is the "Watershed average of annual number of days (days) of measurable precipitation, derived from 30 years of record (1961-1990), 2km PRISM.". This description comes from the gagesII_sept30_2011_var_desc.xlsx file in the tabular data directory.
 
 # plot
-pdf(here("outputs", "nc_basins_by_tabular_data.pdf"), width = 11, height = 8.5)
 # add your code here
+pdf(here("outputs", "nc_basins_by_tabular_data.pdf"), width = 11, height = 8.5)
+ggplot() +
+  geom_sf(data = nc_basins_overlap_sel_climate, aes(fill = WD_BASIN), alpha = 0.25) +
+  scale_fill_gradient(low = "white", high = "blue") +
+  labs(fill = "Watershed Avg. Annual # Days with Precipitation") +
+  geom_sf(data = nc_state_bounds_geom, fill = NA) +
+  theme_bw()
 dev.off()
 ```
 
