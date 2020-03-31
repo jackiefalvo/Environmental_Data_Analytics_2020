@@ -1,0 +1,177 @@
+---
+title: "Assignment 10: Data Scraping"
+author: Cristiana Falvo
+output: pdf_document
+geometry: margin=2.54cm
+editor_options: 
+  chunk_output_type: console
+---
+
+# Total points:
+
+## OVERVIEW
+
+This exercise accompanies the lessons in Environmental Data Analytics on time series analysis. 
+
+## Directions
+1. Change "Student Name" on line 3 (above) with your name.
+3. Work through the steps, **creating code and output** that fulfill each instruction.
+4. Be sure to **answer the questions** in this assignment document.
+6. When you have completed the assignment, **Knit** the text and code into a single PDF file.
+8. After Knitting, submit the completed exercise (PDF file) to the dropbox in Sakai. Add your last name into the file name (e.g., "Salk_A06_GLMs_Week1.Rmd") prior to submission.
+
+The completed exercise is due on Tuesday, April 7 at 1:00 pm.
+
+## Set up 
+1. Set up your session:
+
+* Check your working directory
+* Load the packages `tidyverse`, `rvest`, and any others you end up using.
+* Set your ggplot theme
+
+```{r, message = FALSE}
+getwd()
+library(tidyverse)
+library(rvest)
+
+my_theme <- mytheme <- theme_classic() +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "top")
+theme_set(mytheme)
+```
+
+2. Indicate the EPA impaired waters website (https://www.epa.gov/nutrient-policy-data/waters-assessed-impaired-due-nutrient-related-causes) as the URL to be scraped. 
+
+```{r}
+url <- "https://www.epa.gov/nutrient-policy-data/waters-assessed-impaired-due-nutrient-related-causes"
+webpage <- read_html(url)
+```
+
+3. Scrape the Rivers table, with every column except year. Then, turn it into a data frame.
+
+```{r}
+
+State <- webpage %>% html_nodes("table:nth-child(8) td:nth-child(1)") %>% html_text()
+Rivers.Assessed.mi2 <- webpage %>% html_nodes("table:nth-child(8) td:nth-child(2)") %>% html_text()
+Rivers.Assessed.percent <- webpage %>% html_nodes("table:nth-child(8) td:nth-child(3)") %>% html_text()
+Rivers.Impaired.mi2 <- webpage %>% html_nodes("table:nth-child(8) td:nth-child(4)") %>% html_text()
+Rivers.Impaired.percent <- webpage %>% html_nodes("table:nth-child(8) td:nth-child(5)") %>% html_text()
+Rivers.Impaired.percent.TMDL <- webpage %>% html_nodes("table:nth-child(8) td:nth-child(6)") %>% html_text()
+
+Rivers <- data.frame(State, Rivers.Assessed.mi2, Rivers.Assessed.percent, Rivers.Impaired.mi2,
+                     Rivers.Impaired.percent, Rivers.Impaired.percent.TMDL)
+```
+
+4. Use `str_replace` to remove non-numeric characters from the numeric columns. 
+
+5. Set the numeric columns to a numeric class and verify this using `str`.
+
+```{r}
+# 4
+Rivers$Rivers.Assessed.mi2 <- str_replace(Rivers$Rivers.Assessed.mi2,
+                                                      pattern = "([,])", replacement = "")
+Rivers$Rivers.Assessed.percent <- str_replace(Rivers$Rivers.Assessed.percent,
+                                                      pattern = "([%])", replacement = "")
+Rivers$Rivers.Assessed.percent <- str_replace(Rivers$Rivers.Assessed.percent,
+                                                      pattern = "([*])", replacement = "")
+Rivers$Rivers.Impaired.mi2 <- str_replace(Rivers$Rivers.Impaired.mi2,
+                                                      pattern = "([,])", replacement = "")
+Rivers$Rivers.Impaired.percent <- str_replace(Rivers$Rivers.Impaired.percent,
+                                                      pattern = "([%])", replacement = "")
+Rivers$Rivers.Impaired.percent.TMDL <- str_replace(Rivers$Rivers.Impaired.percent.TMDL,
+                                                      pattern = "([%])", replacement = "")
+Rivers$Rivers.Impaired.percent.TMDL <- str_replace(Rivers$Rivers.Impaired.percent.TMDL,
+                                                      pattern = "([±])", replacement = "")
+
+# 5
+str(Rivers)
+Rivers$Rivers.Assessed.mi2 <- as.numeric(Rivers$Rivers.Assessed.mi2)
+Rivers$Rivers.Assessed.percent <- as.numeric(Rivers$Rivers.Assessed.percent)
+Rivers$Rivers.Impaired.mi2 <- as.numeric(Rivers$Rivers.Impaired.mi2)
+Rivers$Rivers.Impaired.percent <- as.numeric(Rivers$Rivers.Impaired.percent)
+Rivers$Rivers.Impaired.percent.TMDL <- as.numeric(Rivers$Rivers.Impaired.percent.TMDL)
+str(Rivers)
+```
+
+6. Scrape the Lakes table, with every column except year. Then, turn it into a data frame.
+
+```{r}
+Lake.State <- webpage %>% html_nodes("table:nth-child(14) td:nth-child(1)") %>% html_text()
+Lakes.Assessed.mi2 <- webpage %>% html_nodes("table:nth-child(14) td:nth-child(2)") %>% html_text()
+Lakes.Assessed.percent <- webpage %>% html_nodes("table:nth-child(14) td:nth-child(3)") %>% html_text()
+Lakes.Impaired.mi2 <- webpage %>% html_nodes("table:nth-child(14) td:nth-child(4)") %>% html_text()
+Lakes.Impaired.percent <- webpage %>% html_nodes("table:nth-child(14) td:nth-child(5)") %>% html_text()
+Lakes.Impaired.percent.TMDL <- webpage %>% html_nodes("table:nth-child(14) td:nth-child(6)") %>% html_text()
+
+Lakes <- data.frame(Lake.State, Lakes.Assessed.mi2, Lakes.Assessed.percent, Lakes.Impaired.mi2,
+                     Lakes.Impaired.percent, Lakes.Impaired.percent.TMDL)
+```
+
+7. Filter out the states with no data. 
+
+8. Use `str_replace` to remove non-numeric characters from the numeric columns. 
+
+9. Set the numeric columns to a numeric class and verify this using `str`.
+```{r}
+# 7
+Lakes <- filter(Lakes, Lakes$Lake.State != "Hawaii" & Lakes$Lake.State != "Pennsylvania")
+
+# 8
+Lakes$Lakes.Assessed.mi2 <- str_replace(Lakes$Lakes.Assessed.mi2,
+                                                      pattern = "([,])", replacement = "")
+Lakes$Lakes.Assessed.percent <- str_replace(Lakes$Lakes.Assessed.percent,
+                                                      pattern = "([%])", replacement = "")
+Lakes$Lakes.Assessed.percent <- str_replace(Lakes$Lakes.Assessed.percent,
+                                                      pattern = "([*])", replacement = "")
+Lakes$Lakes.Impaired.mi2 <- str_replace(Lakes$Lakes.Impaired.mi2,
+                                                      pattern = "([,])", replacement = "")
+Lakes$Lakes.Impaired.percent <- str_replace(Lakes$Lakes.Impaired.percent,
+                                                      pattern = "([%])", replacement = "")
+Lakes$Lakes.Impaired.percent.TMDL <- str_replace(Lakes$Lakes.Impaired.percent.TMDL,
+                                                      pattern = "([%])", replacement = "")
+Lakes$Lakes.Impaired.percent.TMDL <- str_replace(Lakes$Lakes.Impaired.percent.TMDL,
+                                                      pattern = "([±])", replacement = "")
+
+# 9
+str(Lakes)
+Lakes$Lakes.Assessed.mi2 <- as.numeric(Lakes$Lakes.Assessed.mi2)
+Lakes$Lakes.Assessed.percent <- as.numeric(Lakes$Lakes.Assessed.percent)
+Lakes$Lakes.Impaired.mi2 <- as.numeric(Lakes$Lakes.Impaired.mi2)
+Lakes$Lakes.Impaired.percent <- as.numeric(Lakes$Lakes.Impaired.percent)
+Lakes$Lakes.Impaired.percent.TMDL <- as.numeric(Lakes$Lakes.Impaired.percent.TMDL)
+str(Lakes)
+
+colnames(Lakes)[1] <- "State"
+```
+
+10. Join the two data frames with a `full_join`.
+
+```{r}
+Combined_Rivers_Lakes <- full_join(Rivers, Lakes, by = NULL)
+```
+
+11. Create one graph that compares the data for lakes and/or rivers. This option is flexible; choose a relationship (or relationships) that seem interesting to you, and think about the implications of your findings. This graph should be edited so it follows best data visualization practices. 
+
+(You may choose to run a statistical test or add a line of best fit; this is optional but may aid in your interpretations)
+```{r}
+River_plot <- 
+  ggplot(Combined_Rivers_Lakes, aes(x = Rivers.Assessed.percent, y = Rivers.Impaired.percent, 
+                                    color = Rivers.Impaired.percent.TMDL)) +
+  geom_point() 
+
+print(River_plot)
+
+Lake_plot <-
+  ggplot(Combined_Rivers_Lakes, aes(x = Lakes.Assessed.percent, y = Lakes.Impaired.percent,
+                                    color = Lakes.Impaired.percent.TMDL)) +
+  geom_point() +
+  xlim(0, 100) 
+  
+
+print(Lake_plot)
+
+```
+
+12. Summarize the findings that accompany your graph. You may choose to suggest further research or data collection to help explain the results.
+
+> There doesn't seem to be a strong correlation between the percentage of water bodies assessed and the percentage of water bodies impaired for neither lakes nor rivers. 

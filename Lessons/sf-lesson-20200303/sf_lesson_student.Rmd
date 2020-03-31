@@ -269,9 +269,6 @@ Start by reading in the basin boundaries for non-reference (i.e., notable human 
 ```{r read.in.some.data}
 here()
 basins_nf_seplains_raw <- st_read(here("data", "spatial_data", "bas_nonref_SEPlains.shp"))
-gagesll_9322_test <- st_read(here("data", "spatial_data", "gagesII_9322_sept30_2011.shp")) 
-
-
 
 basins_nf_seplains_raw
 # note how I'm using the here package!
@@ -289,9 +286,9 @@ I like to always save a copy of the raw data in my R session and rename all new 
 
 ```{r activity.load.data}
 # add your code here
-gages_raw <- 
-southeast_state_bounds_raw <- 
-my_tabular_data_raw <- 
+gages_raw <- st_read(here("data", "spatial_data", "gagesII_9322_sept30_2011.shp")) 
+southeast_state_bounds_raw <- st_read(here("data", "spatial_data",  "southeast_state_bounds.shp"))
+my_tabular_data_raw <- read.csv(here("data", "tabular_data", "gagesII_sept30_2011_tabular.csv"))
 
 # red warning text is telling you how the data is being parsed
 ```
@@ -312,13 +309,19 @@ Use base R commands to answer the following questions (for basins_nf_seplains_ra
 
 
 ```{r activity.check.out.data}
-
 # add your code here
+class(basins_nf_seplains_raw)
+class(gages_raw)
+class(southeast_state_bounds_raw)
+class(my_tabular_data_raw)
 
-# bonus, add your code here
+glimpse(basins_nf_seplains_raw)
+glimpse(gages_raw)
+str(gages_raw)
+
 ```
 
-While not in base, you can also use glimpse() from the tibble (tidyverse) package to look at basin_nf_seplains_raw.
+While not in base, you can also use glimpse() from the tibble (tidyverse) package to look at basin_nf_seplains_raw. # what's the difference between this and str() ?
 
 With respect to question 5th above, you might notice some interesting outputs that aren't usually there: geometry type, dimension, bbox, EPSG, and proj4string. There are included there because basins_nf_seplains_raw is a spatial data. Some of these we've talked about before (i.e., EPSG and proj4string).
 
@@ -335,6 +338,10 @@ Use st_crs() to look at the CRSs of the spatial data you have loaded up so far. 
 
 ```{r activity.check.out.data.again}
 # add your code here
+st_crs(basins_nf_seplains_raw)
+st_crs(gages_raw)
+st_crs(southeast_state_bounds_raw)
+st_crs(my_tabular_data_raw)
 
 # first two will not have EPSG code but have proj4 string (i.e., "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
 
@@ -352,6 +359,15 @@ When *setting* a CRS, you're labeling the spatial data with a CRS it already has
 When *projecting* a CRS, you're converting the spatial data from one CRS to another. For the sf package, transform is used interchangeably with project.
 
 It's **very** important know the difference between setting and projecting!
+
+# questions:
+  # what exactly are ESPG's and proj4 strings?
+  # if 'setting' = "labeling the data with a CRS it 'already has' " ..
+      # so is that like, I projected this shp in arc with wgs84, i now bring it into R and it isn't showing me the CRS...so I'm telling R what the projection is because I know it
+      # ..what if you don't know what the projection is?
+      # or what if you just make up a csv with random lat/longs that you type in..would you 'set' or 'project' this file to establish a new CRS?
+      # whaat happens if..
+          # you have data that's already got a set projection; then you do 'set' to new one..
 
 Set a CRS by:
 
@@ -381,32 +397,47 @@ Last, check the CRSs of each.
 ```{r activity.setting.projecting}
 # define proj4 string and EPSG code
 # add your code here
-my_proj4 <- 
-my_epsg <- 
+my_proj4 <- "+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 +lon_0=-96 +x_0=0 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+my_epsg <- 5070
 
 # setting projections
 # set the proj4 string first and then set the EPSG code (because proj4 will over-ride EPSG if you set EPSG first)
-# add your code here
-# basins
-basins_nf_seplains <- basins_nf_seplains_raw
 
-# add your code here
-# gages
-gages <- gages_raw
+# basins - make new object
+basins_nf_seplains <- basins_nf_seplains_raw
+# set proj4 and then epsg
+st_crs(basins_nf_seplains) <- my_proj4
+st_crs(basins_nf_seplains) <- my_epsg
+# check crs
+st_crs(basins_nf_seplains)
+  
+# a way to do it with pipes: new_data <- raw_data %>% st_set_crs(5070)
+
+# gages 
+gages <- gages_raw 
+st_crs(gages) <- my_proj4
+st_crs(gages) <- my_epsg
 
 # state bounds
 # this one looks good so you don't need to do anything but here's the code anyway
 # add your code here
-southeast_state_bounds <- southeast_state_bounds_raw
+##southeast_state_bounds <- southeast_state_bounds_raw
 
 # projecting to North America Albers Equal Area Conic
 # add your code here
-na_albers_proj4 <- 
-na_albers_epsg <- 
+gages_na_albers_proj4 <- gages
+st_crs(gages_na_albers_proj4) <- my_proj4
+
+gages_na_albers_epsg <- gages
+st_crs(gages_na_albers_epsg) <- my_epsg
 # set the proj4 string first and then set the EPSG code (because proj4 will over-ride EPSG if you set EPSG first)
 
-# check CRSs
-# add your code here
+st_crs(gages_na_albers_proj4)
+st_crs(gages_na_albers_epsg)
+# check CRSs ?: why do it separately? the proj4 one says 'no epsg defined', the epsg seems to have everything .. I'll call the epsg one just the normal albers version
+
+gages_na_albers <- gages_na_albers_epsg
+
 ```
 
 ### 2.6 Converting sp Objects to sf Objects and Vice Versa
